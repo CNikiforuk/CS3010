@@ -1,0 +1,16 @@
+Project Worklog,,
+,,
+Date,Time (hours),Description
+,,
+2015-03-12,2,"Set up paintpane class, and other classes"
+2015-03-19,3,"Make basic shapes, develop togglepane for selecting"
+2015-03-21,3,work on UI and modify it
+2015-03-22,4,"implement size change for shapes, so they are draggable"
+2015-03-26,2,"add more shapes, line, scribble"
+2015-04-02,2,"create menubar and items, fix bugs"
+2015-04-04,4,take davids myshape class and work it into my code so I can select shapes
+2015-04-05,6,"continue modifying old code and implement resizing, recolouring"
+2015-04-06,6,trouble with shape resizing and relocating
+2015-04-07,6,"work on text, and scribbles"
+2015-04-08,8,"add depth changing, work on small bug fixes, help screen, about screen. Work on text modifying after its placed."
+2015-04-09,8,"Add images, saving and loading images. Font change, bug fixes. Etc. (still buggy)"
