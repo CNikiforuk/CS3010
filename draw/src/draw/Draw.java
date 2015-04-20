@@ -578,16 +578,20 @@ public class Draw extends Application {
         helpStage.initOwner(primaryStage);
         helpStage.setTitle("Help");
         Text helpText = new Text("Use the toggles on the left to create shapes.\n"
+                            + "At the top, the left coloured rectangle is Stroke colour, right is Fill colour.\n" 
                             + "The grabber tool will let you select and modify the shapes you have created\n"
                             + "When selected, you can move and resize shapes. Drag the border to resize.\n"
                             + "Use the tools at the top to change color of shapes you are editing or drawing.\n"
-                            + "'Front' and 'Back' buttons let you change the depth of shapes.\n"
-                            + "To load images, first create an ImageBox, select it, and choose Load Image\n"
-                            + "Save your current work by selecting File -> Save");
+                            + "'Front' and 'Back' buttons let you change the z-order of shapes.\n"
+                            + "To load images, first create an ImageBox, select it, and choose Load Image (temporary)\n"
+                            + "Save your current work by selecting File -> Save\n"
+                            + "Image opacity can be changed by modifying the fill alpha.\n"
+                            
+                            );
         helpText.setFont(new Font("Verdana", 13));
         helpText.setLineSpacing(5);
         VBox helpBox = new VBox(helpText);
-        Scene helpScene = new Scene(helpBox,550,200);
+        Scene helpScene = new Scene(helpBox,580,200);
         helpStage.setScene(helpScene);
         
         Stage aboutStage = new Stage();
