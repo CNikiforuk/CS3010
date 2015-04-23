@@ -144,371 +144,43 @@ Made several changes to the MyShape class
 
 */
 
-class MyShape extends StackPane implements Drawable{
-    public static final int GRABBER = 0;
-    public static final int PIXELSPRAY = 1;
-    public static final int CIRCLE = 2;
-    public static final int TRIANGLE = 3;
-    public static final int RECTANGLE = 4;
-    public static final int ROUNDEDRECTANGLE = 5;
-    public static final int LINE = 6;
-    public static final int SCRIBBLE = 7;
-    public static final int IMAGE = 8;
-    public static final int TEXT = 9;
-    public static final double INSETSIZE = 4;
-    public static final int MINSIZE = 10;
-    
-    private final int shapeType;
-    private final SimpleBooleanProperty selected;
-    private final Node shape; //The content of the shape
-    private static Paint defaultFillPaint=Color.RED;
-    private static Paint defaultStrokePaint=Color.BLACK;
-    private static Paint defaultSelectedPaint= new Color(0,0,0,0.5); //transparent gray
-    private static double defaultStrokeWidth=3;
-    private static final IntegerProperty defaultShapeType = new SimpleIntegerProperty(CIRCLE);
-    private static double defaultWidth = 2;
-    private static double defaultHeight = 2;
-    private static String defaultFontName = "Times Roman";
-    private static double defaultFontSize = 15;
-    private final float arc = 15f;        //default arc width/height
-
-    private Node makeShape(){
-        Node s = null;
-        switch(defaultShapeType.get()){
-            case GRABBER: break;
-            case CIRCLE: s = new Circle(Math.min(defaultWidth/2, defaultHeight/2));break;
-            case RECTANGLE: s = new Rectangle(defaultWidth,defaultHeight);break;
-            case TRIANGLE: s = new Polygon(0,0,defaultWidth,0,0,defaultHeight); break;
-            case IMAGE: s = new ImageView(new Image("file:testpic.jpg")); break;
-            case TEXT: s = new Text("Text"); break;
-            case ROUNDEDRECTANGLE: s = new Rectangle(defaultWidth/2, defaultHeight/2); 
-                                   ((Rectangle)s).setArcHeight(arc); 
-                                   ((Rectangle)s).setArcWidth(arc) ; break;
-            case PIXELSPRAY: s = new ImageView(new Image("file:./icons/pixelspray2.png")); s.setRotate(Math.random()*360); break;
-            case LINE: s = new Polyline(0,0,0,0); break;
-            case SCRIBBLE: s = new Polyline(); ((Polyline)s).setFill(null); break;
-        }
-        
-        return s;
-    }
-
-    public MyShape(){
-        super();
-        selected = new SimpleBooleanProperty(false);
-        selected.set(false);
-        shape = makeShape();
-        shapeType = defaultShapeType.get();
-        
-        if(shape instanceof Text){//test this first because Text isa Shape
-            ((Text)shape).setStroke(defaultStrokePaint);
-            ((Text)shape).setFont(new Font(defaultFontName,defaultFontSize));
-            ((Text)shape).setBoundsType(TextBoundsType.VISUAL);
-        } else if(shape instanceof Polyline){
-            ((Polyline)shape).setStroke(defaultStrokePaint);
-            ((Polyline)shape).setStrokeWidth(defaultStrokeWidth);
-        }else if(shape instanceof Shape){
-            ((Shape)shape).setFill(defaultFillPaint);
-            ((Shape)shape).setStroke(defaultStrokePaint);
-            ((Shape)shape).setStrokeWidth(defaultStrokeWidth);
-        }else if(shape instanceof ImageView){
-            ((ImageView)shape).setFitHeight(100);
-            ((ImageView)shape).setFitWidth(100);
-        }
-        this.setPadding(new Insets(INSETSIZE,INSETSIZE,INSETSIZE,INSETSIZE));
-        this.setMinSize(10,10);
-        this.setOpacity(0.5f);
-        this.getChildren().add(shape);
-         
-    }
-    
-    public void changeSize(double startX, double startY, double mouseX, double mouseY){
-        switch(this.getShapeType()){
-            case CIRCLE: 
-                //this.resizeRelocate(Math.min(startX,mouseX), Math.min(startY,mouseY), Math.abs(mouseX-startX), Math.abs(mouseY-startY));
-                Circle c = ((Circle)shape);
-                c.setCenterX(Math.abs(startX-mouseX)/2);
-                c.setCenterY(Math.abs(startY-mouseY)/2);
-                c.setRadius(Math.max(MyShape.MINSIZE, Math.max((mouseX-startX),(mouseY-startY)))/2);
-                break;
-            case ROUNDEDRECTANGLE:
-            case RECTANGLE:
-                Rectangle r = (Rectangle)shape;
-                if(!this.isSelected()){
-                    this.relocate(Math.min(startX,mouseX), Math.min(startY,mouseY));
-                    r.setWidth (Math.abs(mouseX-startX));
-                    r.setHeight(Math.abs(mouseY-startY));
-                }else{
-                  r.setWidth (Math.max(MyShape.MINSIZE, mouseX-startX));
-                  r.setHeight(Math.max(MyShape.MINSIZE, mouseY-startY));  
-                }
-                
-                break;
-            case TRIANGLE:
-                //this.resize(Math.abs(mouseX-startX), Math.abs(mouseY-startY));
-                Polygon poly = (Polygon)shape;
-                if(!this.isSelected()){
-                    this.relocate(Math.min(startX,mouseX), Math.min(startY,mouseY));
-                }
-                poly.getPoints().set(0,startX);poly.getPoints().set(1,startY);
-                poly.getPoints().set(2,startX);poly.getPoints().set(3,mouseY);
-                poly.getPoints().set(4,mouseX);poly.getPoints().set(5,startY);
-                break;
-            case IMAGE:
-                if(!this.isSelected())this.relocate(Math.min(startX,mouseX), Math.min(startY,mouseY));
-                ImageView iv = (ImageView)shape;
-                iv.setFitHeight(Math.abs(mouseY-startY));
-                iv.setFitWidth(Math.abs(mouseX-startX));
-                break;
-                
-            case TEXT: 
-                //this.resizeRelocate(Math.min(startX,mouseX), Math.min(startY,mouseY), Math.abs(mouseX-startX), Math.abs(mouseY-startY));
-                Text t = (Text)shape;
-                Bounds boundsInLocal = t.getBoundsInLocal();
-                double h = boundsInLocal.getHeight();
-                double w = boundsInLocal.getWidth();
-                double newHeight = mouseY-startY - getInsets().getTop() - getInsets().getBottom();
-                double newWidth = mouseX-startX - getInsets().getLeft() - getInsets().getRight();
-                double wr = newWidth/w;
-                double hr = newHeight/h;
-                double scale = Math.min(wr, hr);
-                double newSize = Math.max(t.getFont().getSize()*scale,2);
-                String name = t.getFont().getName();
-                t.setFont(new Font(name,newSize));   
-                break;
-            case PIXELSPRAY:
-                break;
-            case LINE:
-                this.resizeRelocate(Math.min(startX,mouseX), Math.min(startY,mouseY), Math.abs(mouseX-startX), Math.abs(mouseY-startY));
-                Polyline p = (Polyline)shape;
-                p.getPoints().set(0, startX);
-                p.getPoints().set(1, startY);
-                p.getPoints().set(2, mouseX);
-                p.getPoints().set(3, mouseY);
-                break;
-            case SCRIBBLE:
-                System.out.println(mouseX+" | "+this.getBoundsInParent().getMinX());
-                Polyline s = (Polyline)shape;
-                s.getPoints().addAll(mouseX, mouseY);
-                break;
-        
-        }
-    }
- 
-    public boolean isSelected(){
-        return selected.get();
-    }
-    public void setSelected(boolean value){
-        selected.set(value);
-        if(value)this.setBackground(new Background(new BackgroundFill(defaultSelectedPaint,CornerRadii.EMPTY,Insets.EMPTY)));
-        else this.setBackground(Background.EMPTY);
-
-    }
-    public BooleanProperty selectedProperty(){
-        return selected;
-    } 
-    
-    /*
-    shapeContains - 
-        A shape (Circle, Rectangle, ...) is contained in a StackPane.
-        This method checks to see if the mouse is inside the actual shape,
-        and not just inside the StackPane.
-    */
-    public boolean shapeContains(double x, double y){
-        if (shape instanceof Circle) return !shape.contains(x-this.getWidth()/2, y-this.getHeight()/2);
-        else if(shape instanceof Rectangle)
-            return shape.contains(x-this.getInsets().getLeft(), y-this.getInsets().getTop());
-        else if(shape instanceof Text){
-            Insets insets = this.getInsets();
-            return x>insets.getLeft()&& x < this.getWidth()-insets.getRight()&&y>insets.getTop()&&y<this.getHeight()-insets.getBottom();   
-        }
-        else return this.contains(x+this.getInsets().getLeft(), y+this.getInsets().getTop());
-        
-    }
-    
-    public Node getNode(){
-        return this.shape;
-    }
-    public static void setDefaultFillPaint(Paint value){
-        defaultFillPaint = value;
-    }
-    public static void setDefaultStrokePaint(Paint value){
-        defaultStrokePaint = value;
-    }
-    public static void setDefaultSelectedPaint(Paint value){
-        defaultSelectedPaint = value;
-    }
-    public static void setDefaultStrokeWidth(double value){
-        defaultStrokeWidth = value;
-    }
-    public static void setDefaultShapeType(int value){
-        defaultShapeType.set(value);
-    }
-    public static void setDefaultWidth(double value){
-        defaultWidth = value;
-    }
-    public static void setDefaultHeight(double value){
-        defaultHeight = value;
-    }
-    public static double getDefaultWidth(){
-        return defaultWidth;
-    }
-    public static double getDefaultHeight(){
-        return defaultHeight;
-    } 
-    public static void setDefaultFontName(String value){
-        defaultFontName = value;
-    }
-    public static void setDefaultFontSize(double value){
-        defaultFontSize = value;
-    }
-    public static String getDefaultFontName(){
-        return defaultFontName;
-    }
-    public static double getDefaultSize(){
-        return defaultFontSize;
-    } 
-    public static int getDefaultShapeType(){
-        return defaultShapeType.get();
-    }
-    public static IntegerProperty defaultShapeProperty(){
-        return defaultShapeType;
-    }
-    @Override
-    public void setFillColor(Color value){
-        if(shape instanceof Text){// Remember that Text isa Shape
-            ((Text)shape).setFill(value);
-        }else if (shape instanceof Shape){
-          ((Shape)shape).setFill(value);
-        }
-    }
-    @Override
-    public void setStrokeColor(Color value){
-        if(shape instanceof Text){
-            ((Text)shape).setStroke(value);
-        } else if (shape instanceof Shape){
-          ((Shape)shape).setStroke(value);
-        }
-    }
-    @Override
-    public void setStrokeWidth(double value){
-        if(shape instanceof Text){
-            ((Text)shape).setStrokeWidth(value);
-        }else if (shape instanceof Shape){
-          ((Shape)shape).setStrokeWidth(value);
-        }
-    }
-    @Override
-    public void setStrokeDashArray(double [] value){
-        if (shape instanceof Text){ 
-            ((Shape)shape).getStrokeDashArray().clear();
-            for(int i = 0; i < value.length; i++)
-               ((Shape)shape).getStrokeDashArray().add(value[i]);
-        }else if(shape instanceof Shape){
-            ((Shape)shape).getStrokeDashArray().clear();
-            for(int i = 0; i < value.length; i++)
-               ((Shape)shape).getStrokeDashArray().add(value[i]);
-        }
-    }
-    @Override
-    public void setFont(Font value) {
-        if(shape instanceof Text){
-           ((Text)shape).setFont(value);
-        }
-    }
-    @Override
-    public Paint getFillColor() {
-        if(shape instanceof Shape)
-            return ((Shape)shape).getFill();
-        else return Color.BLACK;
-    }
-    @Override
-    public Paint getStrokeColor() {
-        if(shape instanceof Shape)
-            return ((Shape)shape).getStroke();
-        else return Color.BLACK;
-    }
-    @Override
-    public double getStrokeWidth() {
-        if(shape instanceof Shape){
-            return ((Shape)shape).getStrokeWidth();
-        } else return 0;
-    }
-    @Override
-    public double[] getStrokeDashArray() {
-        if(shape instanceof Shape){
-            ObservableList<Double> l= ((Shape)shape).getStrokeDashArray();
-            double [] a = new double[l.size()];
-            for(int i = 0; i < a.length; i++)
-                a[i] = l.get(i);
-            return a;
-        } else return new double[0];        
-    }
-    @Override
-    public Font getFont() {
-        if(shape instanceof Text){
-           return ((Text)shape).getFont();
-        }
-        else return Font.getDefault();//System default
-    }
-
-    @Override
-    public void setText(String value) {
-        if(shape instanceof Text){
-           ((Text)shape).setText(value);
-        }
-    }
-
-    @Override
-    public String getText() {
-        if(shape instanceof Text){
-           return ((Text)shape).getText();
-        }
-        else return "";
-    }
-    
-    public int getShapeType(){
-        return shapeType;
-    }
-}
-
-
 public class Draw extends Application {
     
     private TogglePane togglePane = new TogglePane(30f);//pane for toggles
-    private PaintPane paintPane = new PaintPane();      //pane for drawing
-    public Stack events;
+    private PaintPane paintPane = new PaintPane();      //pane for canvas
+    private Stack events = new Stack();                 //stack for events        
+    private int stackIndex = 0;                         
     
-    private double startx;          
+    private double startx;                              //starting mouse positions when clicked  
     private double starty;
-    public double startW;
-    public double startH;
-    private Text mousePosX = new Text();
+    private Text mousePosX = new Text();                //mouse positions on bottom bar
     private Text mousePosY = new Text();
     
-    private MyShape tmpShape = new MyShape();
-    private static MyShape selectedShape = null;
+    private MyShape tmpShape = new MyShape();           //tmp for adding shape
+    private static MyShape selectedShape = null;        //currently selected shape
     
+    private boolean relocating;                         //bools for setting when shapes
+    private boolean resizing;                           //are being moved or resized
     
-    private boolean relocating;
-    private boolean resizing;
+    private final Slider[] sliderSRGB = new Slider[4];  //stroke colour slider
+    private final Slider[] sliderFRGB = new Slider[4];  //fill colour slider
     
-    private final Slider[] sliderSRGB = new Slider[4];
-    private final Slider[] sliderFRGB = new Slider[4]; 
     private DoubleProperty[] SRGB = {new SimpleDoubleProperty(0),new SimpleDoubleProperty(0),new SimpleDoubleProperty(0),new SimpleDoubleProperty(1)};
     private DoubleProperty[] FRGB = {new SimpleDoubleProperty(0),new SimpleDoubleProperty(1),new SimpleDoubleProperty(1),new SimpleDoubleProperty(1)};
     private Color stroke =  Color.color(SRGB[0].get(),SRGB[1].get(),SRGB[2].get(),SRGB[3].get());
     private Color fill = Color.color(FRGB[0].get(),FRGB[1].get(),FRGB[2].get(),FRGB[3].get());
-    private Rectangle fillBox = new Rectangle(40,60);
-    private Rectangle strokeBox = new Rectangle(40,60);
     
-    ComboBox fontCB = new ComboBox<String>();
+    private Rectangle strokeBox = new Rectangle(40,60); //UI strokebox
+    private Rectangle fillBox = new Rectangle(40,60);   //UI fillbox
     
+    ComboBox fontCB = new ComboBox<String>();           //font combobox
+    
+    //listeners for fill and stroke changes for UI
     private ChangeListener fillListener = (ChangeListener) (ObservableValue observable, Object oldValue, Object newValue) -> {
         if(selectedShape != null){
             selectedShape.setFillColor((Color) fillBox.getFill());
             if(selectedShape.getShapeType() == MyShape.IMAGE){((ImageView)selectedShape.getNode()).setOpacity(((Color)fillBox.getFill()).getOpacity());}
         }
-        
     };
     private ChangeListener strokeListener = (ChangeListener) (ObservableValue observable, Object oldValue, Object newValue) -> {
         if(selectedShape != null)selectedShape.setStrokeColor((Color) strokeBox.getFill());   
@@ -692,7 +364,17 @@ public class Draw extends Application {
         //tempText.setStyle("-fx-background-color: transparent;");
         tempText.getStylesheets().add("file:textArea.css");
        
-        MyShape.defaultShapeProperty().bind(togglePane.selectedToggleProperty());
+        togglePane.getToggleGroup().selectedToggleProperty().addListener(e ->{
+            togglePane.selectedShapeProperty().set(togglePane.getSelectedToggle());
+            
+            if(selectedShape != null){
+                strokeBox.fillProperty().removeListener(strokeListener);
+                fillBox.fillProperty().removeListener(fillListener);
+                selectedShape.setSelected(false);
+                selectedShape = null;
+            }
+        });
+        MyShape.defaultShapeProperty().bind(togglePane.selectedShapeProperty()); //bind default shape to selected
         
         paintPane.setOnMousePressed(e -> setOnMousePressed(e));
         paintPane.setOnMouseDragged(e -> setOnMouseDragged(e));
@@ -787,13 +469,18 @@ public class Draw extends Application {
             }
             case Z:{
                 if(e.isControlDown()){
-                    System.out.println("IMPLEMENT UNDO");
+                    if(stackIndex > 0){
+                        paintPane.getChildren().remove(events.get(--stackIndex));
+                    }else System.out.println("Beginning of events!");
                     
-                }
-                break;
+                }break;
             }
             case Y:{
-                if(e.isControlDown()){System.out.println("IMPLEMENT REDO"); break;}
+                if(e.isControlDown()){
+                    if(stackIndex < events.size()){
+                        paintPane.getChildren().add((MyShape)events.get(stackIndex++));
+                    }else System.out.println("End of events!");
+                }break;
             }
         }
     }
@@ -813,6 +500,8 @@ public class Draw extends Application {
             if(togglePane.getSelectedToggle() != TogglePane.GRABBER){
                 MyShape tmp = new MyShape();
                 tmpShape = tmp;
+                events.add(stackIndex++, tmp);
+                System.out.print(events);
 
                 System.out.println("Primary Mouse Press");
                 startx = me.getX()-MyShape.INSETSIZE;
@@ -850,6 +539,7 @@ public class Draw extends Application {
         
     private void setOnMouseReleased(MouseEvent me){
         tmpShape.setOpacity(1f);
+        
         if(me.getButton() == MouseButton.PRIMARY) {
             //s.setOpacity(1f); //s.setSelected(true); 
         }
@@ -887,8 +577,6 @@ public class Draw extends Application {
                 selectedShape = s;
                 startx = e.getScreenX();
                 starty = e.getScreenY();
-                startW = s.getWidth();
-                startH = s.getHeight();
                 
                 if(s.getShapeType() == MyShape.TEXT){
                         fontCB.getSelectionModel().select(((Text)s.getNode()).getFont().getName());
@@ -940,112 +628,7 @@ public class Draw extends Application {
         relocating =false;
         resizing   =false;
     }
-    
-    class TogglePane extends GridPane{
-    
-    public static final int GRABBER = 0;
-    public static final int PIXELSPRAY = 1;
-    public static final int CIRCLE = 2;
-    public static final int TRIANGLE = 3;
-    public static final int RECTANGLE = 4;
-    public static final int ROUNDEDRECTANGLE = 5;
-    public static final int LINE = 6;
-    public static final int SCRIBBLE = 7;
-    public static final int IMAGE = 8;
-    public static final int TEXT = 9;
-    
-    private IntegerProperty selected = new SimpleIntegerProperty(GRABBER);
-    
-    public float size; 
-    protected myButton[] toggles = new myButton[10];
-    protected Image[] images = new Image[10];
-    private ToggleGroup group = new ToggleGroup();
-    
-    class myButton extends ToggleButton{
-        myButton(String text){
-            this.setText(text);
-            this.setToggleGroup(group);
-            this.setScaleShape(false);
-            this.setShape(new Rectangle(size,size)); 
-        }
-    }
-    
-    TogglePane(float s){
-        size = s;
-        
-        this.group.selectedToggleProperty().addListener(e ->{
-            selected.set(getSelectedToggle());
-            
-            if(selectedShape != null){
-                strokeBox.fillProperty().removeListener(strokeListener);
-                fillBox.fillProperty().removeListener(fillListener);
-                selectedShape.setSelected(false);
-                selectedShape = null;
-            }
-        });
-
-        images[GRABBER] = new Image("file:./icons/grab.png");
-        images[CIRCLE] = new Image("file:./icons/circle.png");
-        images[RECTANGLE] = new Image("file:./icons/shape.png");
-        images[TRIANGLE] = new Image("file:./icons/triangle.png");
-        images[IMAGE] = new Image("file:./icons/image.png");
-        images[TEXT] = new Image("file:./icons/text.png");
-        images[ROUNDEDRECTANGLE] = new Image("file:./icons/roundrect.png");
-        images[PIXELSPRAY] = new Image("file:./icons/pixelspray.png");
-        images[LINE] = new Image("file:./icons/line.png");
-        images[SCRIBBLE] = new Image("file:./icons/scribble.png");
-        
-        for(int i=0;i<toggles.length;i++){
-            toggles[i] = new myButton("");
-            ImageView tmp = new ImageView(images[i]);
-            tmp.setFitHeight(size-5);
-            tmp.setFitWidth(size-5);
-            toggles[i].setGraphic(tmp);
-        }
-        
-        ColumnConstraints col1 = new ColumnConstraints();
-        ColumnConstraints col2 = new ColumnConstraints();
-        col1.setHalignment(HPos.CENTER);
-        col2.setHalignment(HPos.CENTER);
-        RowConstraints row1 = new RowConstraints();
-        RowConstraints row2 = new RowConstraints();
-        col1.setPrefWidth(size);
-        col2.setPrefWidth(size);
-        row1.setPrefHeight(size);
-        row2.setPrefHeight(size);
-        this.getColumnConstraints().addAll(col1,col2);
-        this.getRowConstraints().addAll(row1, row2);
-        this.setGridLinesVisible(true);
-        this.setPadding(new Insets(0,5,0,5));
-        this.setHgap(2f);
-        this.setVgap(2f);
-        this.setMinSize(0, 0);
-        
-        for(int i=0;i<toggles.length;i++){
-            this.add(toggles[i],i%2,i/2);
-        }
-        this.selectToggle(GRABBER);
-    }
-    
-    public void selectToggle(int t){
-        this.group.selectToggle(toggles[t]);
-    }
-    
-    public int getSelectedToggle(){
-        int toggle = 0;
-        try{
-        for(int i=0;i<this.toggles.length;i++){
-            if (this.group.getSelectedToggle().equals(this.toggles[i])){toggle = i; break;} 
-        }
-        return toggle;
-        }catch (NullPointerException e){selectToggle(0);System.out.println("Toggle Deselect: Setting toggle to grabber.");return 0;}
-    }
-    
-    public IntegerProperty selectedToggleProperty(){
-        return this.selected;
-    }
-    
-    }
+  
     
     private static void fileChooserFilter( final FileChooser f){
         f.setTitle("Open Picture");

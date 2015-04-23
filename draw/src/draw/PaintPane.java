@@ -25,17 +25,12 @@ import javafx.scene.shape.StrokeLineJoin;
  * @author Car
  */
 
+//should have paintpane doing all canvas work
 public class PaintPane extends Pane {
-    
-    private ArrayList shapes;
-    private MyShape selected;
+
     
     PaintPane(){
         this.setStyle("-fx-border-color: black; -fx-border-width: 1;");
-    }
-    
-    void selectShape(MyShape shape){
-        this.selected = shape; 
     }
     
 }
