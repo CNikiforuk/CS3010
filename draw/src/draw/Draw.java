@@ -101,23 +101,26 @@ public class Draw extends Application {
     
     private TogglePane togglePane = new TogglePane(30f);//pane for toggles
     private PaintPane paintPane = new PaintPane();      //pane for canvas
-    private Stack events = new Stack();                 //stack for events        
-    private int stackIndex = 0;                         
+    private MyShape tmpShape = new MyShape();           //tmp for adding shape
+    private static MyShape selectedShape = null;        //currently selected shape
+    
+    private MyEvents events = new MyEvents();           //stack for events        
+    private IntegerProperty eventIndex = new SimpleIntegerProperty(0);
+    private int eventEnd = 0;
     
     private double startx;                              //starting mouse positions when clicked  
     private double starty;
     private Text mousePosX = new Text();                //mouse positions on bottom bar
     private Text mousePosY = new Text();
-    
-    private MyShape tmpShape = new MyShape();           //tmp for adding shape
-    private static MyShape selectedShape = null;        //currently selected shape
-    
+
     private boolean relocating;                         //bools for setting when shapes
     private boolean resizing;                           //are being moved or resized
     
     private final Slider[] sliderSRGB = new Slider[4];  //stroke colour slider
     private final Slider[] sliderFRGB = new Slider[4];  //fill colour slider
     
+    
+    //Colors and properties for stroke and fill binding.
     private DoubleProperty[] SRGB = {new SimpleDoubleProperty(0),new SimpleDoubleProperty(0),new SimpleDoubleProperty(0),new SimpleDoubleProperty(1)};
     private DoubleProperty[] FRGB = {new SimpleDoubleProperty(0),new SimpleDoubleProperty(1),new SimpleDoubleProperty(1),new SimpleDoubleProperty(1)};
     private Color stroke =  Color.color(SRGB[0].get(),SRGB[1].get(),SRGB[2].get(),SRGB[3].get());
@@ -126,7 +129,9 @@ public class Draw extends Application {
     private Rectangle strokeBox = new Rectangle(40,60); //UI strokebox
     private Rectangle fillBox = new Rectangle(40,60);   //UI fillbox
     
-    ComboBox fontCB = new ComboBox<String>();           //font combobox
+    private ComboBox fontCB = new ComboBox<String>();           //font combobox
+    
+    private MenuItem mSave; //save menu item 
     
     //listeners for fill and stroke changes for UI
     private ChangeListener fillListener = (ChangeListener) (ObservableValue observable, Object oldValue, Object newValue) -> {
@@ -141,7 +146,6 @@ public class Draw extends Application {
     
     @Override
     public void start(Stage primaryStage) {
-        
         fillBox.setFill(fill);
         fillBox.setStroke(Color.BLACK);
         MyShape.setDefaultFillPaint(fill);
@@ -189,11 +193,16 @@ public class Draw extends Application {
         Menu menuFile = new Menu("File");
         MenuItem mNew = new MenuItem("New");
         MenuItem mOpen = new MenuItem("Open");
-        MenuItem mSave = new MenuItem("Save");
-        
+        mSave = new MenuItem("Save");
         menuFile.getItems().addAll(mNew, mOpen, mSave);
+        
         Menu menuEdit = new Menu("Edit");
+        MenuItem mUndo = new MenuItem("Undo"); mUndo.setDisable(true);
+        MenuItem mRedo = new MenuItem("Redo"); mRedo.setDisable(true);
+        menuEdit.getItems().addAll(mUndo, mRedo);
+        
         Menu menuView = new Menu("View");
+        
         Menu menuHelp = new Menu("Help");
         MenuItem mHelp = new MenuItem("Help");
         MenuItem mAbout = new MenuItem("About");
@@ -246,6 +255,15 @@ public class Draw extends Application {
         mAbout.setOnAction(e -> {
             aboutStage.show();
         });
+        
+        mUndo.setOnAction(e -> {
+            undo();
+        });
+        
+        mRedo.setOnAction(e -> {
+            redo();
+        });
+
         
         menuBar.getMenus().addAll(menuFile, menuEdit, menuView, menuHelp);
         
@@ -336,19 +354,7 @@ public class Draw extends Application {
         Scene scene = new Scene(root, 800, 600);
         
         mSave.setOnAction((ActionEvent event) -> {
-            FileChooser fc = new FileChooser();
-            fileChooserFilter(fc);
-            fc.setTitle("Save Image");
-            File file = fc.showSaveDialog(primaryStage);
-            WritableImage tmp = new WritableImage((int)scene.getWidth(),(int)scene.getHeight());
-            if (file != null){
-                try{
-                    System.out.println(fc.getSelectedExtensionFilter().getDescription().toLowerCase());
-                    ImageIO.write(SwingFXUtils.fromFXImage(paintPane.snapshot(null, tmp), null), fc.getSelectedExtensionFilter().getDescription().toLowerCase(), file);
-                }catch(Exception e){
-                    System.out.println(e);
-                }
-            }        
+            save(primaryStage, scene);    
         });
         
         paintPane.setOnMouseMoved(e -> mouseHandler(e));
@@ -411,31 +417,78 @@ public class Draw extends Application {
         switch(e.getCode()){
             case DELETE:{
                 System.out.println("Delete Pressed!");
-                if(selectedShape != null) paintPane.getChildren().remove(selectedShape);
+                if(selectedShape != null) {
+                    paintPane.getChildren().remove(selectedShape);
+                    events.add(new Event(Event.REMOVE, selectedShape));
+                }
                 break;
             }
             case P:{
                 if(e.isControlDown()){print(paintPane); break;}
             }
             case S:{
-                if(e.isControlDown()){System.out.println("IMPLEMENT SAVE"); break;}
+                if(e.isControlDown()){mSave.fire();}
+                break;
             }
             case Z:{
                 if(e.isControlDown()){
-                    if(stackIndex > 0){
-                        paintPane.getChildren().remove(events.get(--stackIndex));
-                    }else System.out.println("Beginning of events!");
-                    
+                    undo();
                 }break;
             }
             case Y:{
                 if(e.isControlDown()){
-                    if(stackIndex < events.size()){
-                        paintPane.getChildren().add((MyShape)events.get(stackIndex++));
-                    }else System.out.println("End of events!");
+                    redo();
                 }break;
             }
         }
+    }
+    
+    private void undo(){
+        if(events.getEnd() > 0){
+            switch(events.getEvent().getCode()){
+                case Event.ADD:
+                    if(!paintPane.getChildren().remove((MyShape)events.getEvent().getObject())) System.out.println("End of Events!");
+                    break;
+                case Event.REMOVE:
+                    try{
+                        paintPane.getChildren().add((MyShape)events.getEvent().getObject());
+                    }catch(IllegalArgumentException ex){System.out.println("End of Events!");}
+                    break;
+            }
+            events.decrement();
+        }
+    }
+    
+    private void redo(){
+        if(events.getEnd() > 0){
+            events.increment();
+            switch(events.getEvent().getCode()){
+                case Event.ADD:
+                        try{
+                            paintPane.getChildren().add((MyShape)events.getEvent().getObject());
+                        }catch(IllegalArgumentException ex){System.out.println("End of Events!");}
+                    break;
+                case Event.REMOVE:
+                    if(!paintPane.getChildren().remove((MyShape)events.getEvent().getObject()))System.out.println("End of Events!");
+                    break;
+            }
+        }
+    }
+    
+    private void save(Stage stage, Scene scene){
+        FileChooser fc = new FileChooser();
+            fileChooserFilter(fc);
+            fc.setTitle("Save Image");
+            File file = fc.showSaveDialog(stage);
+            WritableImage tmp = new WritableImage((int)scene.getWidth(),(int)scene.getHeight());
+            if (file != null){
+                try{
+                    System.out.println(fc.getSelectedExtensionFilter().getDescription().toLowerCase());
+                    ImageIO.write(SwingFXUtils.fromFXImage(paintPane.snapshot(null, tmp), null), fc.getSelectedExtensionFilter().getDescription().toLowerCase(), file);
+                }catch(Exception e){
+                    System.out.println(e);
+                }
+            } 
     }
     
     private void keyTypedHandler(KeyEvent e){
@@ -453,8 +506,9 @@ public class Draw extends Application {
             if(togglePane.getSelectedToggle() != TogglePane.GRABBER){
                 MyShape tmp = new MyShape();
                 tmpShape = tmp;
-                events.add(stackIndex++, tmp);
-                System.out.print(events);
+                events.add(new Event(Event.ADD, tmp));
+                eventIndex.set(eventIndex.get()+1);
+                eventEnd = eventIndex.get();
 
                 System.out.println("Primary Mouse Press");
                 startx = me.getX()-MyShape.INSETSIZE;

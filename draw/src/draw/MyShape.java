@@ -36,7 +36,7 @@ import javafx.scene.text.TextBoundsType;
  */
 
 
-//based off of David's code
+//based off of David's MyShape
 interface Drawable {
     void setFillColor(Color c);
     void setStrokeColor(Color c); 
@@ -81,7 +81,6 @@ class MyShape extends StackPane implements Drawable{
     private static double defaultFontSize = 15;
     private final float arc = 15f;        //default arc width/height
 
-    
     private Node makeShape(){
         Node s = null;
         switch(defaultShapeType.get()){
