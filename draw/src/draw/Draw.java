@@ -96,53 +96,6 @@ import javax.imageio.ImageIO;
  * @author Carlos N.
  */
 
-/*
-Drawable - 
-Defines methods used to get/set "properties" in a MyShape etc.
-
-Bug Fixes - 
-I added getters and a few setters
-*/
-interface Drawable {
-    void setFillColor(Color c);
-    void setStrokeColor(Color c); 
-    void setStrokeWidth(double width);
-    void setStrokeDashArray(double [] value);    
-    void setFont(Font value);
-    void setText(String value);
-    Paint getFillColor();
-    Paint getStrokeColor(); 
-    double getStrokeWidth();
-    double [] getStrokeDashArray();    
-    Font getFont();
-    String getText();
-}
-
-/*
-MyShape - 
-
-This is the shape, CIRCLE,RECTANGLE,TRIANGLE,IMAGE,TEXT, ...
-
-The MyShape is actually a StackPane and the "shape" is placed inside the
-StackPane with small insets. (5 by default)
-
-The class has defaults that can be changed.  The default shape is CIRCLE
-for example. An instance is constructed according to the defaults.
-
-Once a MyShape is constructed, several "properties" can be changed: fillColor,
-strokeColor, strokeWide, strokeDashArray, Font, ...
-
-A MyShape can be selected and moved and resized.
-
-Bug Fixes - March 20, 2015
-Made several changes to the MyShape class
-1) Text isa Shape so if checking for instances check Text before Shape
-   - Several methods were modified because of this
-2) Text can be selected, resized and moved now
-3) The shapeContains method handles Text now
-4) Several changes were made regarding the use of Font.
-
-*/
 
 public class Draw extends Application {
     

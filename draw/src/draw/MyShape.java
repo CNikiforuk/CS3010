@@ -34,6 +34,25 @@ import javafx.scene.text.TextBoundsType;
  *
  * @author Car
  */
+
+
+//based off of David's code
+interface Drawable {
+    void setFillColor(Color c);
+    void setStrokeColor(Color c); 
+    void setStrokeWidth(double width);
+    void setStrokeDashArray(double [] value);    
+    void setFont(Font value);
+    void setText(String value);
+    Paint getFillColor();
+    Paint getStrokeColor(); 
+    double getStrokeWidth();
+    double [] getStrokeDashArray();    
+    Font getFont();
+    String getText();
+}
+
+
 class MyShape extends StackPane implements Drawable{
     public static final int GRABBER = 0;
     public static final int PIXELSPRAY = 1;
@@ -62,6 +81,7 @@ class MyShape extends StackPane implements Drawable{
     private static double defaultFontSize = 15;
     private final float arc = 15f;        //default arc width/height
 
+    
     private Node makeShape(){
         Node s = null;
         switch(defaultShapeType.get()){
