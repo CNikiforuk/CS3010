@@ -350,14 +350,6 @@ public class Draw extends Application {
         root.setLeft(togglePane);
         root.setCenter(paintPane);
         root.setBottom(statusBar);
-        
-        TextArea tempText = new TextArea();
-        tempText.setText("Hello!");
-        tempText.setPrefSize(1,1);
-        tempText.setWrapText(true);
-        tempText.setPromptText("your text here");
-        //tempText.setStyle("-fx-background-color: transparent;");
-        tempText.getStylesheets().add("file:textArea.css");
        
         togglePane.getToggleGroup().selectedToggleProperty().addListener(e ->{
             togglePane.selectedShapeProperty().set(togglePane.getSelectedToggle());
