@@ -6,6 +6,7 @@
 package draw;
 
 import java.util.ArrayList;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 /**
@@ -17,9 +18,15 @@ public class MyEvents{
     public ArrayList<Event> events = new ArrayList();
     private SimpleIntegerProperty index = new SimpleIntegerProperty(0);
     private SimpleIntegerProperty end = new SimpleIntegerProperty(0);
+    private SimpleBooleanProperty empty = new SimpleBooleanProperty(true);
+    private SimpleBooleanProperty atEnd = new SimpleBooleanProperty(true);
     
     public MyEvents() {
-    
+        index.addListener(e ->{
+            empty.set((index.get()==0));
+            atEnd.set((end.get()-index.get())<0);
+        });
+        
     }
     
     public void add(Event e){
@@ -63,4 +70,11 @@ public class MyEvents{
         }
     }
     
+    public SimpleBooleanProperty emptyProperty(){
+        return empty;
+    }
+    
+    public SimpleBooleanProperty atEndProperty(){
+        return atEnd;
+    }
 }

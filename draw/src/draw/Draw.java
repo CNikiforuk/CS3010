@@ -199,6 +199,10 @@ public class Draw extends Application {
         Menu menuEdit = new Menu("Edit");
         MenuItem mUndo = new MenuItem("Undo"); mUndo.setDisable(true);
         MenuItem mRedo = new MenuItem("Redo"); mRedo.setDisable(true);
+        
+        mUndo.disableProperty().bind(events.emptyProperty());
+        mRedo.disableProperty().bind(events.atEndProperty());
+        
         menuEdit.getItems().addAll(mUndo, mRedo);
         
         Menu menuView = new Menu("View");
@@ -217,7 +221,8 @@ public class Draw extends Application {
                             + "When selected, you can move and resize shapes. Drag the border to resize.\n"
                             + "Use the tools at the top to change color of shapes you are editing or drawing.\n"
                             + "'Front' and 'Back' buttons let you change the z-order of shapes.\n"
-                            + "To load images, first create an ImageBox, select it, and choose Load Image (temporary)\n"
+                            + "file -> load will load the selected image into a new imagebox. \n"
+                            + "If an imagebox is selected, the image will be loaded there instead.\n"
                             + "Save your current work by selecting File -> Save\n"
                             + "Image opacity can be changed by modifying the fill alpha.\n"
                             
@@ -240,9 +245,28 @@ public class Draw extends Application {
            try{
                fileChooserFilter(fileChooser);
                File file = fileChooser.showOpenDialog(primaryStage);
-               if (file != null && selectedShape != null && selectedShape.getShapeType() == MyShape.IMAGE) {
-                   ImageView iv = ((ImageView)selectedShape.getNode());
-                   iv.setImage(new Image("file:"+file.getPath()));
+               if (file != null){
+                    if(selectedShape != null && selectedShape.getShapeType() == MyShape.IMAGE){
+                        ImageView iv = ((ImageView)selectedShape.getNode());
+                        iv.setImage(new Image("file:"+file.getPath()));
+                    }else{
+                        MyShape tmp = new MyShape(MyShape.IMAGE);
+                        tmpShape = tmp;
+                        events.add(new Event(Event.ADD, tmp));
+                        eventIndex.set(eventIndex.get()+1);
+                        eventEnd = eventIndex.get();
+
+                        startx = 0;
+                        starty = 0;
+
+                        tmp.relocate(startx, starty);
+                        tmp.setOnMousePressed(e->shapePressed(e,tmp));
+                        tmp.setOnMouseReleased(e->shapeReleased(e,tmp));
+                        tmp.setOnMouseDragged(e->shapeDragged(e,tmp));
+                        ImageView iv = ((ImageView)tmp.getNode());
+                        iv.setImage(new Image("file:"+file.getPath()));
+                        paintPane.getChildren().add(tmp);
+                    }
                }
  
             }catch(Exception e){System.out.println(e);}

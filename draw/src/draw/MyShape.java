@@ -81,6 +81,26 @@ class MyShape extends StackPane implements Drawable{
     private static double defaultFontSize = 15;
     private final float arc = 15f;        //default arc width/height
 
+    private Node makeShape(int shapeType){
+        Node s = null;
+        switch(shapeType){
+            case GRABBER: break;
+            case CIRCLE: s = new Circle(Math.min(defaultWidth/2, defaultHeight/2));break;
+            case RECTANGLE: s = new Rectangle(defaultWidth,defaultHeight);break;
+            case TRIANGLE: s = new Polygon(0,0,defaultWidth,0,0,defaultHeight); break;
+            case IMAGE: s = new ImageView(new Image("file:testpic.jpg")); break;
+            case TEXT: s = new Text("Text"); break;
+            case ROUNDEDRECTANGLE: s = new Rectangle(defaultWidth/2, defaultHeight/2); 
+                                   ((Rectangle)s).setArcHeight(arc); 
+                                   ((Rectangle)s).setArcWidth(arc) ; break;
+            case PIXELSPRAY: s = new ImageView(new Image("file:./icons/pixelspray2.png")); s.setRotate(Math.random()*360); break;
+            case LINE: s = new Polyline(0,0,0,0); break;
+            case SCRIBBLE: s = new Polyline(); ((Polyline)s).setFill(null); break;
+        }
+        
+        return s;
+    }
+    
     private Node makeShape(){
         Node s = null;
         switch(defaultShapeType.get()){
@@ -107,6 +127,35 @@ class MyShape extends StackPane implements Drawable{
         selected.set(false);
         shape = makeShape();
         shapeType = defaultShapeType.get();
+        
+        if(shape instanceof Text){//test this first because Text isa Shape
+            ((Text)shape).setStroke(defaultStrokePaint);
+            ((Text)shape).setFont(new Font(defaultFontName,defaultFontSize));
+            ((Text)shape).setBoundsType(TextBoundsType.VISUAL);
+        } else if(shape instanceof Polyline){
+            ((Polyline)shape).setStroke(defaultStrokePaint);
+            ((Polyline)shape).setStrokeWidth(defaultStrokeWidth);
+        }else if(shape instanceof Shape){
+            ((Shape)shape).setFill(defaultFillPaint);
+            ((Shape)shape).setStroke(defaultStrokePaint);
+            ((Shape)shape).setStrokeWidth(defaultStrokeWidth);
+        }else if(shape instanceof ImageView){
+            ((ImageView)shape).setFitHeight(100);
+            ((ImageView)shape).setFitWidth(100);
+        }
+        this.setPadding(new Insets(INSETSIZE,INSETSIZE,INSETSIZE,INSETSIZE));
+        this.setMinSize(10,10);
+        this.setOpacity(0.5f);
+        this.getChildren().add(shape);
+         
+    }
+    
+    public MyShape(int shapeType){
+        super();
+        selected = new SimpleBooleanProperty(false);
+        selected.set(false);
+        shape = makeShape(shapeType);
+        this.shapeType = shapeType;
         
         if(shape instanceof Text){//test this first because Text isa Shape
             ((Text)shape).setStroke(defaultStrokePaint);
