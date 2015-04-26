@@ -272,14 +272,14 @@ class MyShape extends StackPane implements Drawable{
         and not just inside the StackPane.
     */
     public boolean shapeContains(double x, double y){
-        if (shape instanceof Circle) return !shape.contains(x-this.getWidth()/2, y-this.getHeight()/2);
-        else if(shape instanceof Rectangle)
-            return shape.contains(x-this.getInsets().getLeft(), y-this.getInsets().getTop());
-        else if(shape instanceof Text){
-            Insets insets = this.getInsets();
-            return x>insets.getLeft()&& x < this.getWidth()-insets.getRight()&&y>insets.getTop()&&y<this.getHeight()-insets.getBottom();   
-        }
-        else return this.contains(x+this.getInsets().getLeft(), y+this.getInsets().getTop());
+        //if (shape instanceof Circle) return !shape.contains(x-this.getWidth()/2, y-this.getHeight()/2);
+        // if(shape instanceof Rectangle)
+        //    return shape.contains(x-this.getInsets().getLeft(), y-this.getInsets().getTop());
+        //else if(shape instanceof Text){
+        //    Insets insets = this.getInsets();
+        //    return x>insets.getLeft()&& x < this.getWidth()-insets.getRight()&&y>insets.getTop()&&y<this.getHeight()-insets.getBottom();   
+        //}
+         return this.contains(x+this.getInsets().getLeft(), y+this.getInsets().getTop());
         
     }
     

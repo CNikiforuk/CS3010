@@ -218,12 +218,12 @@ public class Draw extends Application {
         Text helpText = new Text("Use the toggles on the left to create shapes.\n"
                             + "At the top, the left coloured rectangle is Stroke colour, right is Fill colour.\n" 
                             + "The grabber tool will let you select and modify the shapes you have created\n"
-                            + "When selected, you can move and resize shapes. Drag the border to resize.\n"
+                            + "When selected, you can move and resize shapes. Drag the bottom left corner to resize.\n"
                             + "Use the tools at the top to change color of shapes you are editing or drawing.\n"
                             + "'Front' and 'Back' buttons let you change the z-order of shapes.\n"
                             + "file -> load will load the selected image into a new imagebox. \n"
                             + "If an imagebox is selected, the image will be loaded there instead.\n"
-                            + "Save your current work by selecting File -> Save\n"
+                            + "Save your current work as an image file by selecting File -> Save\n"
                             + "Image opacity can be changed by modifying the fill alpha.\n"
                             
                             );
@@ -493,8 +493,7 @@ public class Draw extends Application {
     
     private void save(Stage stage, Scene scene){
         FileChooser fc = new FileChooser();
-            fileChooserFilter(fc);
-            fc.setTitle("Save Image");
+            fileSaverFilter(fc);
             File file = fc.showSaveDialog(stage);
             WritableImage tmp = new WritableImage((int)scene.getWidth(),(int)scene.getHeight());
             if (file != null){
@@ -653,11 +652,22 @@ public class Draw extends Application {
     }
   
     
-    private static void fileChooserFilter( final FileChooser f){
+    private static void fileChooserFilter(final FileChooser f){
         f.setTitle("Open Picture");
         f.setInitialDirectory(new File(System.getProperty("user.home")));
         f.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("All Images", "*.*"),
+                new FileChooser.ExtensionFilter("JPG","*.jpg"),
+                new FileChooser.ExtensionFilter("PNG","*.png"),
+                new FileChooser.ExtensionFilter("GIF","*.gif")
+        );
+        
+    }
+    
+    private static void fileSaverFilter(final FileChooser f){
+        f.setTitle("Save Picture");
+        f.setInitialDirectory(new File(System.getProperty("user.home")));
+        f.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("JPG","*.jpg"),
                 new FileChooser.ExtensionFilter("PNG","*.png"),
                 new FileChooser.ExtensionFilter("GIF","*.gif")
