@@ -193,8 +193,9 @@ public class Draw extends Application {
         Menu menuFile = new Menu("File");
         MenuItem mNew = new MenuItem("New");
         MenuItem mOpen = new MenuItem("Open");
+        MenuItem mPrint = new MenuItem("Print");
         mSave = new MenuItem("Save");
-        menuFile.getItems().addAll(mNew, mOpen, mSave);
+        menuFile.getItems().addAll(mNew, mOpen, mSave, mPrint);
         
         Menu menuEdit = new Menu("Edit");
         MenuItem mUndo = new MenuItem("Undo"); mUndo.setDisable(true);
@@ -224,13 +225,14 @@ public class Draw extends Application {
                             + "file -> load will load the selected image into a new imagebox. \n"
                             + "If an imagebox is selected, the image will be loaded there instead.\n"
                             + "Save your current work as an image file by selecting File -> Save\n"
+                            + "Basic hotkeys work, ctrl-o to open image, ctrl-p to print, etc.\n"
                             + "Image opacity can be changed by modifying the fill alpha.\n"
                             
                             );
         helpText.setFont(new Font("Verdana", 13));
         helpText.setLineSpacing(5);
         VBox helpBox = new VBox(helpText);
-        Scene helpScene = new Scene(helpBox,580,200);
+        Scene helpScene = new Scene(helpBox,600,240);
         helpStage.setScene(helpScene);
         
         Stage aboutStage = new Stage();
@@ -286,6 +288,10 @@ public class Draw extends Application {
         
         mRedo.setOnAction(e -> {
             redo();
+        });
+        
+        mPrint.setOnAction(e -> {
+            print(paintPane);
         });
 
         
