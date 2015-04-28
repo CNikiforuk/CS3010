@@ -77,4 +77,11 @@ public class MyEvents{
     public SimpleBooleanProperty atEndProperty(){
         return atEnd;
     }
+    
+    public void clear(){
+        index.set(0);
+        end.set(0);
+        atEnd.set(true);
+        empty.set(true);
+    }
 }

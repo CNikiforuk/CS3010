@@ -293,6 +293,11 @@ public class Draw extends Application {
         mPrint.setOnAction(e -> {
             print(paintPane);
         });
+        
+        mNew.setOnAction(e -> {
+           paintPane.getChildren().clear();
+           events.clear();
+        });
 
         
         menuBar.getMenus().addAll(menuFile, menuEdit, menuView, menuHelp);
