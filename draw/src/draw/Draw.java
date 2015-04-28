@@ -219,7 +219,7 @@ public class Draw extends Application {
         Text helpText = new Text("Use the toggles on the left to create shapes.\n"
                             + "At the top, the left coloured rectangle is Stroke colour, right is Fill colour.\n" 
                             + "The grabber tool will let you select and modify the shapes you have created\n"
-                            + "When selected, you can move and resize shapes. Drag the bottom left corner to resize.\n"
+                            + "When selected, you can move,resize, and recolor shapes. Drag bottom right corner to resize.\n"
                             + "Use the tools at the top to change color of shapes you are editing or drawing.\n"
                             + "'Front' and 'Back' buttons let you change the z-order of shapes.\n"
                             + "file -> load will load the selected image into a new imagebox. \n"
