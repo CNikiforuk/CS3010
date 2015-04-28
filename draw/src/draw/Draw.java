@@ -205,7 +205,7 @@ public class Draw extends Application {
         mUndo.disableProperty().bind(events.emptyProperty());
         mRedo.disableProperty().bind(events.atEndProperty());
         
-        menuEdit.getItems().addAll(mUndo, mRedo);
+        menuEdit.getItems().addAll(mUndo, mRedo, mDelete);
         
         Menu menuView = new Menu("View");
         
