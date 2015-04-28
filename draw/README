@@ -4,6 +4,7 @@ Date: Apr 25, 2015
 
 https://github.com/CNikiforuk/CS3010/tree/master/draw
 
+
 --------------------Description---------------------
 
 Drawing program using JavaFX 8
@@ -14,9 +15,38 @@ How to run the program:
 
 (or use the .jar)
 
+
 -----------------Using the program------------------
 
 In the help menu there is a "help" option that will give you the basic idea of how to use the program.
+
+
+-----------------------Bugs-------------------------
+
+Scribble doesn't work very well, it moves within the pane it is contained in.
+
+The text modifying is a little buggy and not ideal, text area with transparent background may work better.
+
+
+--------------------To Do list----------------------
+
+Change text to a text area with transparent background, and
+
+Fix scribble
+
+Add stroke settings for lines and scribbles (width, smoothness, etc.)
+
+Image editing. ie. filters
+
+Implement undo/redo for modification of shapes (rather than just adding and deleting)
+
+Multishape selection
+
+Add project saving, rather than just image saving
+
+Continuous pixel spray that doesn't require clicking
+
+More user friendly color selection?
 
 
 --------------Additional Information----------------

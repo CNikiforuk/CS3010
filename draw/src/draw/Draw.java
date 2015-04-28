@@ -228,13 +228,15 @@ public class Draw extends Application {
                             + "If an imagebox is selected, the image will be loaded there instead.\n"
                             + "Save your current work as an image file by selecting File -> Save\n"
                             + "Image opacity can be changed by modifying the fill alpha.\n"
+                            + "\nTEXT\nUse the text toggle to create a textbox.\n"
+                            + "Once created, you can modify it by typing, and resize/recolor it like any other shape.\n"
                             + "\nHOTKEYS\nBasic hotkeys work, ctrl-o to open image, ctrl-p to print, etc.\n"
                             
                             );
         helpText.setFont(new Font("Verdana", 13));
         helpText.setLineSpacing(5);
         VBox helpBox = new VBox(helpText);
-        Scene helpScene = new Scene(helpBox,600,400);
+        Scene helpScene = new Scene(helpBox,600,480);
         helpStage.setScene(helpScene);
         
         Stage aboutStage = new Stage();
