@@ -200,6 +200,7 @@ public class Draw extends Application {
         Menu menuEdit = new Menu("Edit");
         MenuItem mUndo = new MenuItem("Undo"); mUndo.setDisable(true);
         MenuItem mRedo = new MenuItem("Redo"); mRedo.setDisable(true);
+        MenuItem mDelete = new MenuItem("Delete");
         
         mUndo.disableProperty().bind(events.emptyProperty());
         mRedo.disableProperty().bind(events.atEndProperty());
@@ -289,6 +290,15 @@ public class Draw extends Application {
         mRedo.setOnAction(e -> {
             redo();
         });
+        
+        mDelete.setOnAction(e -> {
+            if(selectedShape != null) {
+                    paintPane.getChildren().remove(selectedShape);
+                    events.add(new Event(Event.REMOVE, selectedShape));
+                }
+        });
+        
+        
         
         mPrint.setOnAction(e -> {
             print(paintPane);
