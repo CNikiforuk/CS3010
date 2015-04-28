@@ -217,23 +217,24 @@ public class Draw extends Application {
         Stage helpStage = new Stage();
         helpStage.initOwner(primaryStage);
         helpStage.setTitle("Help");
-        Text helpText = new Text("Use the toggles on the left to create shapes.\n"
+        Text helpText = new Text("CREATING SHAPES\nUse the toggles on the left to create shapes.\n"
                             + "At the top, the left coloured rectangle is Stroke colour, right is Fill colour.\n" 
-                            + "The grabber tool will let you select and modify the shapes you have created\n"
-                            + "When selected, you can move,resize, and recolor shapes. Drag bottom right corner to resize.\n"
+                            + "\nEDITING SHAPES\nThe grabber tool will let you select and modify the shapes you have created\n"
+                            + "When selected, you can move,resize, and recolor shapes.\n"
+                            + "Drag the bottom right corner of shapes to resize them.\n"
                             + "Use the tools at the top to change color of shapes you are editing or drawing.\n"
                             + "'Front' and 'Back' buttons let you change the z-order of shapes.\n"
-                            + "file -> load will load the selected image into a new imagebox. \n"
+                            + "\nLOADING IMAGES\nfile -> load will load the selected image into a new imagebox. \n"
                             + "If an imagebox is selected, the image will be loaded there instead.\n"
                             + "Save your current work as an image file by selecting File -> Save\n"
-                            + "Basic hotkeys work, ctrl-o to open image, ctrl-p to print, etc.\n"
+                            + "\nHOTKEYS\nBasic hotkeys work, ctrl-o to open image, ctrl-p to print, etc.\n"
                             + "Image opacity can be changed by modifying the fill alpha.\n"
                             
                             );
         helpText.setFont(new Font("Verdana", 13));
         helpText.setLineSpacing(5);
         VBox helpBox = new VBox(helpText);
-        Scene helpScene = new Scene(helpBox,600,240);
+        Scene helpScene = new Scene(helpBox,600,400);
         helpStage.setScene(helpScene);
         
         Stage aboutStage = new Stage();
