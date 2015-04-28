@@ -224,11 +224,11 @@ public class Draw extends Application {
                             + "Drag the bottom right corner of shapes to resize them.\n"
                             + "Use the tools at the top to change color of shapes you are editing or drawing.\n"
                             + "'Front' and 'Back' buttons let you change the z-order of shapes.\n"
-                            + "\nLOADING IMAGES\nfile -> load will load the selected image into a new imagebox. \n"
+                            + "\nIMAGES\nfile -> load will load the selected image into a new imagebox. \n"
                             + "If an imagebox is selected, the image will be loaded there instead.\n"
                             + "Save your current work as an image file by selecting File -> Save\n"
-                            + "\nHOTKEYS\nBasic hotkeys work, ctrl-o to open image, ctrl-p to print, etc.\n"
                             + "Image opacity can be changed by modifying the fill alpha.\n"
+                            + "\nHOTKEYS\nBasic hotkeys work, ctrl-o to open image, ctrl-p to print, etc.\n"
                             
                             );
         helpText.setFont(new Font("Verdana", 13));
